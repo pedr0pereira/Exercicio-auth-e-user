@@ -1,15 +1,29 @@
-const User = require('../models/user');
+const { User } = require('../models/user');
 const bcrypt = require('bcrypt');
 const nodemailer = require('nodemailer');
 
-const logMethod = (req, res, next) => {
-  console.log('Método HTTP:', req.method);
-  next();
+const generateAndSendVerification = async (user) => {
+  try {
+    // Gera um novo código de verificação
+    const verificationCode = generateVerificationCode();
+
+    // Armazena o código de verificação na base de dados
+    user.cod_verify = verificationCode;
+    await user.save();
+
+    // Envia o email de verificação
+    await sendVerificationEmail(user.email, verificationCode);
+
+    console.log('Email de verificação enviado com sucesso');
+  } catch (error) {
+    console.error('Erro ao gerar o código de verificação e enviar o email:', error);
+    throw error;
+  }
 };
 
 const edit = async (req, res) => {
   const { id } = req.params; // ID do utilizador a ser editado
-  const { username, password, first_name, last_name, address, city, country, phone_number, date_of_birth, email, newEmail } = req.body;
+  const { username, password, first_name, last_name, address, city, country, phone_number, date_of_birth} = req.body;
 
   try {
     console.log('Editando utilizador:', id);
@@ -33,27 +47,6 @@ const edit = async (req, res) => {
     user.phone_number = phone_number;
     user.date_of_birth = date_of_birth;
 
-    // Verifica se o email antigo está correto
-    if (user.email !== email) {
-      console.log('Email antigo inválido');
-      return res.status(400).send({ message: 'Email antigo inválido' });
-    }
-
-    // Gera um novo código de verificação
-    const verificationCode = generateVerificationCode();
-
-    // Armazena o código de verificação na base de dados
-    user.cod_verify = verificationCode;
-    await user.save();
-
-    // Envia o email de verificação
-    await sendVerificationEmail(email, verificationCode);
-
-    console.log('Email de verificação enviado com sucesso');
-
-    // Salva as alterações na base de dados
-    await user.save();
-
     console.log('Utilizador atualizado com sucesso');
     return res.status(200).send({ message: 'Utilizador atualizado com sucesso' });
   } catch (error) {
@@ -70,12 +63,12 @@ function generateVerificationCode() {
 // Função para enviar o email de verificação
 async function sendVerificationEmail(email, verificationCode) {
   try {
-    const transporter = nodemailer.createTransport({
-      host: 'sandbox.smtp.mailtrap.io',
-      port: 25,
+    var transport = nodemailer.createTransport({
+      host: "sandbox.smtp.mailtrap.io",
+      port: 2525,
       auth: {
-        user: '7bf5f765635d00',
-        pass: '059c524490e65a '
+        user: "ed58cc37ad0446",
+        pass: "e372d92e6a848d"
       }
     });
 
@@ -83,10 +76,10 @@ async function sendVerificationEmail(email, verificationCode) {
       from: 'pedro.estagio.2023@gmail.com',
       to: email,
       subject: 'Código de Verificação',
-      text: `Seu código de verificação é: ${verificationCode} \n Este email é um email automático NÃO RESPONDA!!`
+      text: `Seu código de verificação é: ${verificationCode} \nEste email é um email automático NÃO RESPONDA!!`
     };
 
-    await transporter.sendMail(message);
+    await transport.sendMail(message);
     console.log('Email de verificação enviado para', email);
   } catch (error) {
     console.error('Erro ao enviar o email de verificação:', error);
@@ -131,5 +124,6 @@ const updateEmail = async (req, res) => {
 
 module.exports = {
   edit,
-  updateEmail
+  updateEmail, 
+  generateAndSendVerification
 };
