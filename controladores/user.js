@@ -2,8 +2,18 @@ const { User } = require('../models/user');
 const bcrypt = require('bcrypt');
 const nodemailer = require('nodemailer');
 
-const generateAndSendVerification = async (user) => {
+const generateAndSendVerification = async (req, res) => {
+  const { id } = req.params; // Obter o ID do parâmetro de rota
   try {
+     // Obtém o usuário pelo ID
+     const user = await User.findByPk(id);
+
+     // Verifica se o usuário existe na base de dados
+     if (!user) {
+       console.log('Utilizador não encontrado');
+       throw new Error('Utilizador não encontrado');
+     }
+    
     // Gera um novo código de verificação
     const verificationCode = generateVerificationCode();
 
@@ -15,9 +25,10 @@ const generateAndSendVerification = async (user) => {
     await sendVerificationEmail(user.email, verificationCode);
 
     console.log('Email de verificação enviado com sucesso');
+    return res.status(200).send({ message: 'Email de verificação enviado com sucesso' });
   } catch (error) {
-    console.error('Erro ao gerar o código de verificação e enviar o email:', error);
-    throw error;
+    console.error('Erro ao gerar o código de verificação e enviar o email', error);
+    return res.status(500).send({ message: 'Erro ao gerar o código de verificação e enviar o email' });
   }
 };
 
@@ -46,6 +57,8 @@ const edit = async (req, res) => {
     user.country = country;
     user.phone_number = phone_number;
     user.date_of_birth = date_of_birth;
+
+    await user.save();
 
     console.log('Utilizador atualizado com sucesso');
     return res.status(200).send({ message: 'Utilizador atualizado com sucesso' });
@@ -76,7 +89,7 @@ async function sendVerificationEmail(email, verificationCode) {
       from: 'pedro.estagio.2023@gmail.com',
       to: email,
       subject: 'Código de Verificação',
-      text: `Seu código de verificação é: ${verificationCode} \nEste email é um email automático NÃO RESPONDA!!`
+      text: `O código de verificação é: \n\t${verificationCode}`
     };
 
     await transport.sendMail(message);
