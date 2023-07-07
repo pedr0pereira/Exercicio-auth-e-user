@@ -5,14 +5,14 @@ const PORT = process.env.PORT;
 
 app.use(express.json());
 
-const pessoaRota = require('./rotas/pessoa');
-const authRota = require('./rotas/auth');
-const userRota = require('./rotas/user'); // Nova rota de usuário
-const sequelize = require('./db');
+const pessoaRota = require('./rotas/person'); // Rota do controlador pessoa
+const authRota = require('./rotas/auth'); // Rota do controlador auth
+const userRota = require('./rotas/user'); // Rota do controlador user
+const sequelize = require('./db'); // Ligação à base de dados
 
-app.use('/pessoas', pessoaRota); // Rota de pessoas
-app.use('/auth', authRota); // Rota de autenticação
-app.use('/user', userRota); // Rota de usuário
+app.use('/person', pessoaRota); // Utiliza a rota de pessoas
+app.use('/auth', authRota); // Utiliza a rota da autenticação
+app.use('/user', userRota); // Utiliza a rota do utilizador
 
 // Sincronizar o modelo Sequelize com a base de dados
 sequelize.sync().then(() => {

@@ -2,9 +2,41 @@ const { User } = require('../models/user');
 const bcrypt = require('bcrypt');
 const nodemailer = require('nodemailer');
 
+// Função para gerar um código de verificação aleatório
+function generateVerificationCode() {
+  return Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
+}
+
+// Função para enviar o email de verificação
+async function sendVerificationEmail(email, verificationCode) {
+  try {
+    var transport = nodemailer.createTransport({
+      host: "sandbox.smtp.mailtrap.io",
+      port: 2525,
+      auth: {
+        user: "ed58cc37ad0446",
+        pass: "e372d92e6a848d"
+      }
+    });
+
+    const message = {
+      from: 'pedro.estagio.2023@gmail.com',
+      to: email,
+      subject: 'Código de Verificação',
+      text: `O código de verificação é: \n\t${verificationCode}`
+    };
+
+    await transport.sendMail(message);
+    console.log('Email de verificação enviado para', email);
+  } catch (error) {
+    console.error('Erro ao enviar o email de verificação:', error);
+  }
+} 
+
 const generateAndSendVerification = async (req, res) => {
   const { id } = req.params; // Obter o ID do parâmetro de rota
   try {
+     console.log('\nA verificar se o utilizador existe:', id)
      // Obtém o usuário pelo ID
      const user = await User.findByPk(id);
 
@@ -37,7 +69,7 @@ const edit = async (req, res) => {
   const { username, password, first_name, last_name, address, city, country, phone_number, date_of_birth} = req.body;
 
   try {
-    console.log('Editando utilizador:', id);
+    console.log('\nEditando utilizador:', id);
 
     // Verifica se o utilizador existe na base de dados
     const user = await User.findByPk(id);
@@ -68,43 +100,12 @@ const edit = async (req, res) => {
   }
 };
 
-// Função para gerar um código de verificação aleatório
-function generateVerificationCode() {
-  return Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
-}
-
-// Função para enviar o email de verificação
-async function sendVerificationEmail(email, verificationCode) {
-  try {
-    var transport = nodemailer.createTransport({
-      host: "sandbox.smtp.mailtrap.io",
-      port: 2525,
-      auth: {
-        user: "ed58cc37ad0446",
-        pass: "e372d92e6a848d"
-      }
-    });
-
-    const message = {
-      from: 'pedro.estagio.2023@gmail.com',
-      to: email,
-      subject: 'Código de Verificação',
-      text: `O código de verificação é: \n\t${verificationCode}`
-    };
-
-    await transport.sendMail(message);
-    console.log('Email de verificação enviado para', email);
-  } catch (error) {
-    console.error('Erro ao enviar o email de verificação:', error);
-  }
-}
-
 const updateEmail = async (req, res) => {
   const { id } = req.params; // ID do utilizador a ser editado
   const { verificationCode, newEmail } = req.body;
 
   try {
-    console.log('Atualizando email do utilizador:', id);
+    console.log('\nAtualizando email do utilizador:', id);
 
     // Verifica se o utilizador existe na base de dados
     const user = await User.findByPk(id);
