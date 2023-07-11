@@ -5,6 +5,12 @@ const bcrypt = require('bcrypt');
 const User = sequelize.define(
   'User',
   {
+    id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      autoIncrement: true,
+      primaryKey: true
+    },
     username: {
       type: DataTypes.STRING,
       allowNull: false
@@ -63,4 +69,3 @@ User.beforeCreate(async (user) => {
 });
 
 module.exports = { User };
-

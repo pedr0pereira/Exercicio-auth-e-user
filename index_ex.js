@@ -8,11 +8,15 @@ app.use(express.json());
 const pessoaRota = require('./rotas/person'); // Rota do controlador pessoa
 const authRota = require('./rotas/auth'); // Rota do controlador auth
 const userRota = require('./rotas/user'); // Rota do controlador user
+const clinicalReportRota = require('./rotas/clinicalReport');
 const sequelize = require('./db'); // Ligação à base de dados
 
 app.use('/person', pessoaRota); // Utiliza a rota de pessoas
 app.use('/auth', authRota); // Utiliza a rota da autenticação
 app.use('/user', userRota); // Utiliza a rota do utilizador
+app.use('/clinicalReport', clinicalReportRota);
+
+
 
 // Sincronizar o modelo Sequelize com a base de dados
 sequelize.sync().then(() => {
