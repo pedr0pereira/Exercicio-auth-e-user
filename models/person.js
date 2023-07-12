@@ -1,5 +1,6 @@
 const { Sequelize, DataTypes } = require('sequelize');
 const sequelize = require('../db');
+const { Intercorrencia } = require('./intercorrencia');
 
 const Person = sequelize.define(
   'Person',
@@ -40,5 +41,9 @@ const Person = sequelize.define(
     timestamps: false
   }
 );
+Person.belongsToMany(Intercorrencia, {
+  through: "intercorrenciaPerson",
+  foreignKey: 'personId',
+});
 
 module.exports = { Person };
