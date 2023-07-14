@@ -68,7 +68,15 @@ const ClinicalReport = sequelize.define(
   {
     tableName: 'clinical_reports',
     timestamps: false
+  },{
+    classMethods: {
+      associate: function (models) {
+        ClinicalReport.belongsTo(Person, {
+          foreignKey: 'personId',
+          as: 'person',
+        });
+      }
+    }
   }
 );
-
 module.exports = { ClinicalReport };

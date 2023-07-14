@@ -1,6 +1,5 @@
 const { Sequelize, DataTypes } = require('sequelize');
 const sequelize = require('../db');
-const { Person } = require('./person');
 
 const Intercorrencia = sequelize.define(
     'Intercorrencia',
@@ -23,10 +22,17 @@ const Intercorrencia = sequelize.define(
     {
         tableName: 'intercorrencia',
         timestamps: false
-    }
-);
-Intercorrencia.belongsToMany(Person, {
-    through: "intercorrenciaPerson",
-    foreignKey: 'intercorrenciaId',
-});
+    },{
+        classMethods: {
+            associate: function (models) {
+                Intercorrencia.belongsToMany(Person, {
+                through: 'intercorrenciaPerson',
+                foreignKey: 'intercorrenciaId',
+                otherKey: 'personId',
+                timestamps: false,
+                });
+            }
+        }
+      }
+    );
 module.exports = { Intercorrencia };

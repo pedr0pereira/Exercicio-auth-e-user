@@ -1,6 +1,5 @@
 const { Sequelize, DataTypes } = require('sequelize');
 const sequelize = require('../db');
-const { Intercorrencia } = require('./intercorrencia');
 
 const Person = sequelize.define(
   'Person',
@@ -39,11 +38,25 @@ const Person = sequelize.define(
   {
     tableName: 'person',
     timestamps: false
+  },{
+    classMethods: {
+      associate: function (models) {
+        Person.hasMany(ClinicalReport, {
+          foreignKey: "personId",
+          as: "clinicalReport",
+        });
+        Person.hasMany(Medication, {
+          foreignKey: "personId",
+          as: "medicationPrescription",
+        });
+        Person.belongsToMany(Intercorrencia, {
+          through: 'intercorrenciaPerson',
+          foreignKey: 'personId',
+          otherKey: 'intercorrenciaId',
+          timestamps: false,
+        });
+      }
+    }
   }
 );
-Person.belongsToMany(Intercorrencia, {
-  through: "intercorrenciaPerson",
-  foreignKey: 'personId',
-});
-
 module.exports = { Person };

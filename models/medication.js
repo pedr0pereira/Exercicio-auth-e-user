@@ -32,6 +32,15 @@ const Medication = sequelize.define(
   {
     tableName: 'medicationPrescription',
     timestamps: false
+  },{
+    classMethods: {
+      associate: function (models) {
+        Medication.belongsTo(Person, {
+          foreignKey: 'personId',
+          as: 'person',
+        });
+      }
+    }
   }
 );
 
